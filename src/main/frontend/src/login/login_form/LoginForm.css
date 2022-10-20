@@ -1,0 +1,20 @@
+.login-container{
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    border: 1.5px solid;
+    border-radius: 10px;
+    border-color: black;
+    min-width: max-content;
+    max-width: min-content;
+    max-height: min-content;
+}
+
+.button-div{
+    margin: 15px 0 15px 0;
+    display: flex;
+    justify-content: center;
+}
