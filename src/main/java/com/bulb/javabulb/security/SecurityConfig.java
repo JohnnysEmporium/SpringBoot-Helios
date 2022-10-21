@@ -43,8 +43,9 @@ public class SecurityConfig {
             If you want to change it, create a new CustomAuthentcationFilter and use .setFilterProcessURL method.
             Replace with new in http.addFilter
          */
-        http.authorizeRequests().antMatchers("/login").permitAll();
+        http.authorizeRequests().antMatchers("/login", "/token/refresh").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/users").hasAnyAuthority("ROLE_ADMIN");
+        http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/dupa").hasAnyAuthority("ROLE_ADMIN");
         http.authorizeRequests().antMatchers(HttpMethod.GET, "/api/user/**").hasAnyAuthority("ROLE_USER");
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN");
 //        http.authorizeRequests().anyRequest().authenticated();
