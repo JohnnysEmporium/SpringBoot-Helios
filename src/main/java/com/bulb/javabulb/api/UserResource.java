@@ -11,8 +11,11 @@ import com.bulb.javabulb.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -29,11 +32,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Slf4j
 public class UserResource {
+
     private final UserService userService;
 
     @GetMapping("/users")
     public ResponseEntity<List<UserProfileDTO>> getUsers(){
+//        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        System.out.println("USER: " + user.getUsername());
         return ResponseEntity.ok().body(userService.getUsers());
     }
 
@@ -66,32 +74,25 @@ public class UserResource {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             try {
-                String refreshToken = authorizationHeader.substring("Bearer ".length());
                 Algorithm algorithm = AlgorithmHolder.algorithm;
-                UserProfileDTO user = userService.getUser(JWTHelper.getUsername(refreshToken));
+                UserProfileDTO user = userService.getUser(JWTHelper.getUsername(authorizationHeader));
 
-                String accessToken = JWT.create()
-                        .withSubject(user.getUsername())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
-                        .withIssuer(request.getRequestURL().toString())
-                        .withClaim("roles", user.getRoles().stream().map(UserRoleDTO::getName).collect(Collectors.toList()))
-                        .sign(algorithm);
+                String accessToken = JWTHelper.generateAccessToken(user, request.getRequestURL().toString());
 
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("access_token", accessToken);
-                tokens.put("refresh_token", refreshToken);
                 response.setContentType(APPLICATION_JSON_VALUE);
                 new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 
 
-            //TODO: Utility class for catch? Same thing in CustomAuthorizationFilter
             } catch (Exception e){
+                e.printStackTrace();
+                log.error("Error generating new token: {}", e.getMessage());
+
                 Map<String, String> error = new HashMap<>();
-
                 response.setHeader("error", e.getMessage());
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-
                 error.put("error", e.getMessage());
+
                 new ObjectMapper().writeValue(response.getOutputStream(), error);
             }
         } else {
