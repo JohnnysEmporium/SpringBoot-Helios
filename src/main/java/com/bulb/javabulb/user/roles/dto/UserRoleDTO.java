@@ -1,5 +1,6 @@
-package com.bulb.javabulb.user.roles;
+package com.bulb.javabulb.user.roles.dto;
 
+import com.bulb.javabulb.user.roles.Roles;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -17,7 +18,7 @@ public class UserRoleDTO {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private RoleEnum name;
+    private Roles name;
 
     public void setId(Long id) {
         this.id = id;
@@ -27,11 +28,11 @@ public class UserRoleDTO {
         return id;
     }
 
-    public RoleEnum getName() {
+    public Roles getName() {
         return name;
     }
 
-    public void setName(RoleEnum roleName) {
+    public void setName(Roles roleName) {
         this.name = roleName;
     }
 }

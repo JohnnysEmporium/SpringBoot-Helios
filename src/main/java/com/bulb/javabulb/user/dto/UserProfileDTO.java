@@ -1,5 +1,5 @@
 package com.bulb.javabulb.user.dto;
-import com.bulb.javabulb.user.roles.UserRoleDTO;
+import com.bulb.javabulb.user.roles.dto.UserRoleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -31,7 +30,7 @@ public class UserProfileDTO {
     @Size(max = 120)
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_assigned_roles",
             joinColumns = {@JoinColumn(name = "user_id")},

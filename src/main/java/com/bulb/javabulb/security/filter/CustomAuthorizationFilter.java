@@ -2,18 +2,13 @@ package com.bulb.javabulb.security.filter;
 
 import com.bulb.javabulb.security.jwt.JWTHelper;
 import com.bulb.javabulb.user.service.UserService;
-import com.bulb.javabulb.user.service.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -27,6 +22,7 @@ import java.util.Map;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 //Every request goes through this, then the API is being invoked
+//Authentication Principal is always a String due to JWTHelper.setSecurityContextAuthorization
 
 @Slf4j
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
@@ -47,6 +43,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
                 try {
 
+                    //Until just a string is being taken into account (and not user object - inside JWTHelper)
+                    //The principle will be a String and not an user object.
                     JWTHelper.setSecurityContextAuthorization(authorizationHeader);
                     filterChain.doFilter(request, response);
 

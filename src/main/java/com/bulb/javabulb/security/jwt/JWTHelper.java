@@ -5,20 +5,18 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.bulb.javabulb.user.dto.UserProfileDTO;
-import com.bulb.javabulb.user.roles.UserRoleDTO;
-import com.bulb.javabulb.user.service.UserService;
+import com.bulb.javabulb.user.roles.dto.UserRoleDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 
+@RequiredArgsConstructor
 public class JWTHelper {
 
     private static final Algorithm algorithm = AlgorithmHolder.algorithm;
@@ -31,11 +29,6 @@ public class JWTHelper {
         Collection<SimpleGrantedAuthority> authorities = userData.getValue();
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-    }
-
-    public static void setSecurityContextAuthorization(UserProfileDTO user, Collection<SimpleGrantedAuthority> authorities){
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 

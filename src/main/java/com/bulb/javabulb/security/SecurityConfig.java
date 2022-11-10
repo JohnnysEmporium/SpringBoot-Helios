@@ -1,10 +1,8 @@
 package com.bulb.javabulb.security;
 import com.bulb.javabulb.security.filter.CustomAuthenticationFilter;
 import com.bulb.javabulb.security.filter.CustomAuthorizationFilter;
-import com.bulb.javabulb.user.service.UserService;
-import com.bulb.javabulb.user.service.UserServiceImpl;
+import com.bulb.javabulb.security.jwt.JWTHelper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,11 +17,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.security.SecureRandom;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final int bcryptStrength = 10;
 
 //    @Bean
 //    @Override
@@ -33,7 +35,7 @@ public class SecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(bcryptStrength, new SecureRandom());
     }
 
     @Bean
@@ -72,6 +74,7 @@ public class SecurityConfig {
     }
 
     public static class AuthorizationDSL extends AbstractHttpConfigurer<AuthorizationDSL, HttpSecurity> {
+
         @Override
         public void configure(HttpSecurity http) throws Exception {
             http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -2,8 +2,9 @@ package com.bulb.javabulb.user.service;
 
 import com.bulb.javabulb.user.dto.UserProfileDTO;
 import com.bulb.javabulb.user.repository.UserProfileRepository;
-import com.bulb.javabulb.user.roles.RoleEnum;
-import com.bulb.javabulb.user.roles.UserRoleDTO;
+import com.bulb.javabulb.user.roles.exceptions.RoleAlreadyExistsException;
+import com.bulb.javabulb.user.roles.Roles;
+import com.bulb.javabulb.user.roles.dto.UserRoleDTO;
 import com.bulb.javabulb.user.roles.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +39,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserRoleDTO saveRole(UserRoleDTO role) {
-        log.info("Saving role {} to the database", role.getName());
-        return userRoleRepository.save(role);
+    public UserRoleDTO saveRole(UserRoleDTO role) throws RoleAlreadyExistsException {
+        if (userRoleRepository.findByName(role.getName()) == null) {
+            log.info("Saving role {} to the database", role.getName());
+            return userRoleRepository.save(role);
+        } else {
+            log.warn("Role with name of {} already exists", role.getName());
+            throw new RoleAlreadyExistsException("Role already exists");
+        }
     }
 
     @Override
-    public void addRoleToUser(String username, RoleEnum roleName) {
+    public void addRoleToUser(String username, Roles roleName) {
         log.info("Adding role {} to user {}", roleName, username);
         UserProfileDTO user = userProfileRepository.findByUsername(username);
         UserRoleDTO role = userRoleRepository.findByName(roleName);
@@ -66,7 +72,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserProfileDTO user = userProfileRepository.findByUsername(username);
-        if(user == null){
+        if (user == null) {
             log.error("User not found in database");
             throw new UsernameNotFoundException("User not found in database");
         } else {
